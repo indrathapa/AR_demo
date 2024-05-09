@@ -1,96 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0 maximum-scale=1.0">
-  <title>Persistent AR.js Example</title>
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Catalog AR</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/2.0.8/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
-  <a-scene
-    embedded
-    arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
+    <a-scene embedded arjs="detectionMode: mono_and_matrix;">
+        <!-- Assets -->
+        <a-assets>
+            <a-asset-item id="car-model" src="assests/model/porsche_car.glb"></a-asset-item>
+            <!-- Upload your car image and reference it here -->
+            <img id="car-image" src="assests/img/car.jpg" style="display: none;">
+        </a-assets>
 
-    <!-- Use an alternative marker format, such as image targets or QR codes -->
-    <a-marker type="pattern" url="pattern_car.patt">
-      <a-entity
-        id="car"
-        gltf-model="porsche_car.glb"
-        scale="0.1 0.1 0.1"
-        position="0 0 -10">
-      </a-entity>
+        <!-- Image Tracker -->
+        <a-marker type="image" url="#car-image">
+            <!-- Car Model -->
+            <a-entity gltf-model="#car-model" scale="0.5 0.5 0.5" position="0 0 0"></a-entity>
 
-      <!-- Define a hotspot -->
-      <a-entity
-        id="hotspot"
-        geometry="primitive: circle; radius: 0.5"
-        material="color: red; opacity: 0.7"
-        position="1 0 -5"
-        cursor-listener>
-      </a-entity>
-    </a-marker>
+            <!-- Interactive Buttons -->
+            <a-entity id="button-engine" position="0.5 0.3 0">
+                <a-box width="0.3" height="0.1" depth="0.05" color="blue" clickable description="Engine"></a-box>
+            </a-entity>
+            <a-entity id="button-door" position="0.5 0.2 0">
+                <a-box width="0.3" height="0.1" depth="0.05" color="green" clickable description="Door"></a-box>
+            </a-entity>
+            <!-- Add more buttons for other car parts -->
 
-    <a-entity camera></a-entity>
-
-    <!-- Define a popup entity -->
-    <a-entity id="popup" position="0 0 -7" visible="false">
-      <a-entity
-        geometry="primitive: plane; width: 2; height: 1"
-        material="color: white; opacity: 0.9"
-        position="0 0 0.05">
-      </a-entity>
-      <a-entity
-        id="popup-text"
-        text="value: Popup Text; align: center; width: 4"
-        position="0 0 0.1">
-      </a-entity>
-      <a-entity
-        geometry="primitive: plane; width: 0.5; height: 0.2"
-        material="color: gray"
-        position="-0.8 -0.4 0.05"
-        cursor-listener>
-        <a-entity
-          text="value: Back; align: center; width: 2"
-          position="0 0 0.1">
-        </a-entity>
-      </a-entity>
-    </a-entity>
+            <!-- Description Popup -->
+            <a-plane id="popup" position="0 0.5 -0.5" visible="false" material="color: #fff; opacity: 0.9" width="2" height="1">
+                <a-entity id="popup-text" position="0 0 0.1" text="align: center; color: #333; wrapCount: 20"></a-entity>
+                <a-entity id="close-button" position="0 -0.4 0.1" geometry="primitive: circle; radius: 0.05" material="color: red" clickable></a-entity>
+            </a-plane>
+        </a-marker>
+    </a-scene>
 
     <script>
-      // Define a variable to store the last known position of the marker
-      var lastMarkerPosition = new THREE.Vector3();
+        // Register component for clickable entities
+        AFRAME.registerComponent('clickable', {
+            init: function () {
+                var buttonEl = this.el;
+                buttonEl.addEventListener('click', function (evt) {
+                    var description = buttonEl.getAttribute('description');
+                    var popupEl = document.getElementById('popup');
+                    var popupTextEl = document.getElementById('popup-text');
+                    popupTextEl.setAttribute('text', 'value', description);
+                    popupEl.setAttribute('visible', true);
+                });
+            }
+        });
 
-      // Function to update the position of the 3D object based on the marker
-      function updatePosition() {
-        var marker = document.querySelector('a-marker');
-        var car = document.querySelector('#car');
-
-        if (marker.object3D.visible) {
-          // If the marker is visible, update the position of the 3D object
-          car.setAttribute('position', marker.object3D.position);
-          // Update the last known position of the marker
-          lastMarkerPosition.copy(marker.object3D.position);
-        } else {
-          // If the marker is not visible, keep the 3D object at the last known position
-          car.setAttribute('position', lastMarkerPosition);
-        }
-      }
-
-      // Function to show/hide the popup
-      AFRAME.registerComponent('cursor-listener', {
-        init: function () {
-          var el = this.el;
-          el.addEventListener('click', function () {
-            var popup = document.querySelector('#popup');
-            popup.setAttribute('visible', !popup.getAttribute('visible'));
-          });
-        }
-      });
-
-      // Call the updatePosition function every frame
-      setInterval(updatePosition, 1000 / 30); // 30 frames per second
+        // Close popup when close button is clicked
+        document.getElementById('close-button').addEventListener('click', function () {
+            document.getElementById('popup').setAttribute('visible', false);
+        });
     </script>
-  </a-scene>
 </body>
 </html>
