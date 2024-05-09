@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Responsive QR Code and Image Marker</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+  }
+  .container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    max-width: 90%;
+  }
+  .qr-code {
+    width: 50%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .image-marker {
+    width: 50%;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  /* For responsiveness */
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+    }
+    .qr-code, .image-marker {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="qr-code">
+    <img src="qr-code-image.jpg" alt="QR Code">
+  </div>
+  <div class="image-marker">
+    <img src="image-marker.jpg" alt="Image Marker">
+  </div>
+</div>
+</body>
+</html>
